@@ -1,7 +1,7 @@
 import codecs 
 from stats import Distribution
 from generator import Distributor
-from filewriter import FileWriter
+from dataaccess import DAO
 class DistributionHandler:
     
     @staticmethod
@@ -23,19 +23,20 @@ class DistributionHandler:
             rows.append(l)
         f.close()
         return rows
-        
-        
-    @staticmethod   
-    def writeRandomText(outputFile,dist,nLines):
-        distrb = Distributor(dist)
-        writer = FileWriter(outputFile+".generated");
-        for i in range(0,nLines):
-            writer.write(distrb.getRandString(100)+"\n")
-        writer.close()
-    
+            
     @staticmethod
     def generate(inputFile, outputFile, nLines):
+        dao = DAO()
         dist = Distribution()
-        DistributionHandler.calcDistribution(DistributionHandler.readfile(inputFile),dist)
-        #printDistributedString(dist,nLines)
-        DistributionHandler.writeRandomText(outputFile,dist,nLines)
+        DistributionHandler.calcDistribution(dao.getStrippedTextRows(inputFile),dist)  
+        distrb = Distributor(dist)
+        lines = []
+        for i in range(0,nLines):
+            lines.append(distrb.getRandString(100))
+        dao.saveText(lines,outputFile)
+        
+    @staticmethod
+    def printDistributedString(dist,nLines): 
+        distrb = Distributor(dist)
+        for p in range(1,nLines):
+            print(distrb.getRandString(100))

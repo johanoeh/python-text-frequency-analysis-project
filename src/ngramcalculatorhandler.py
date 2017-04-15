@@ -1,18 +1,21 @@
+from dataaccess import DAO
+from ngramcalculator import NGramCalculator
 class NgramCalculationHandler:
     
     @staticmethod
     def textAnalyzeALL(infile,outfile,n):
+        dao =DAO()
         if not n:
             n = 4
-        rows = readfile(infile)
+        rows = dao.getTextRows(infile)
         for i in range(1,n):
-            analyzeText(infile, outfile,i, rows)
+            NgramCalculationHandler.analyzeText(infile, outfile,i, rows)
             
     @staticmethod
     def analyzeText(infile,outfile,nGramType,rows):
-    
+        dao = DAO()
         if not rows:
-            rows = readfile(infile)
+            rows = dao.getTextRows(infile)
 
         gramName =""
         nGram = {}
@@ -34,5 +37,4 @@ class NgramCalculationHandler:
         nGrams = {nGramType:nGram}
         NGramCalculator.countGrams(rows, nGrams)
         gramSorted = sorted(nGram.items(), key=lambda x:x[1], reverse = True)
-        #printgrams(gramName, gramSorted, 10)
-        writeStatsToFile(outfile+"."+gramName.lower(), gramSorted)
+        dao.saveNGramDistribution(outfile+"."+gramName.lower(),gramSorted)
